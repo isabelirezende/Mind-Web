@@ -33,7 +33,8 @@ class DashboardController extends BaseController
             ->limit(5)
             ->get()
             ->getResultArray();
-
+            
+        $dadosGrafico = $this->dadosGraficoGeral();
         $pacientes = $usuarioModel->listarPacientes();
 
         return view('dashboard/index', [
