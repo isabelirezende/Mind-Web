@@ -61,6 +61,16 @@
     </div>
 </div>
 
+<!-- Gráfico de evolução geral -->
+<?php if (count($dadosGrafico['valores']) >= 2): ?>
+<div class="mind-table p-4 mb-4">
+    <p class="section-title mb-3">
+        <i class="bi bi-graph-up me-1"></i> Evolução geral de humor (últimos 14 dias)
+    </p>
+    <canvas id="graficoGeral" height="100"></canvas>
+</div>
+<?php endif; ?>
+
 <!-- Alertas recentes -->
 <div class="mb-4">
     <p class="section-title">
@@ -181,5 +191,73 @@
         </div>
     <?php endif; ?>
 </div>
+
+<!-- Lista de pacientes -->
+<div class="mt-4">
+    <p class="section-title"><i class="bi bi-people me-1"></i> Pacientes</p>
+
+    <?php if (empty($pacientes)): ?>
+        <div class="mind-table p-4 text-center" style="color:var(--mind-muted);font-size:0.9rem;">
+            Nenhum paciente cadastrado ainda.
+        </div>
+    <?php else: ?>
+        <div class="mind-table">
+            <table class="table">
+                <thead>
+                    <tr><th>Nome</th><th>E-mail</th><th>Desde</th><th></th></tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($pacientes as $p): ?>
+                    <tr>
+                        <td style="font-weight:500;"><?= esc($p['nome']) ?></td>
+                        <td style="color:var(--mind-muted);"><?= esc($p['email']) ?></td>
+                        <td style="color:var(--mind-muted);"><?= date('d/m/Y', strtotime($p['criado_em'])) ?></td>
+                        <td>
+                            <a href="/dashboard/paciente/<?= $p['id'] ?>"
+                               style="font-size:0.82rem;color:var(--mind-primary);text-decoration:none;">
+                                Ver histórico →
+                            </a>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
+</div>
+
+<?php if (count($dadosGrafico['valores']) >= 2): ?>
+<?= $this->section('scripts') ?>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+new Chart(document.getElementById('graficoGeral'), {
+    type: 'line',
+    data: {
+        labels: <?= json_encode($dadosGrafico['labels']) ?>,
+        datasets: [{
+            label: 'Média de humor',
+            data: <?= json_encode($dadosGrafico['valores']) ?>,
+            borderColor: '#009cb9',
+            backgroundColor: 'rgba(0, 156, 185, 0.08)',
+            borderWidth: 2.5,
+            tension: 0.35,
+            fill: true,
+            pointBackgroundColor: '#009cb9',
+            pointRadius: 3,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { min: 0.5, max: 5.5, ticks: { stepSize: 1 }, grid: { color: '#e6f2f4' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+</script>
+<?= $this->endSection() ?>
+<?php endif; ?>
 
 <?= $this->endSection() ?>

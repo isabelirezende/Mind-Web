@@ -45,11 +45,31 @@
                 placeholder="Como foi seu dia? Algo aconteceu?"></textarea>
         </div>
 
-        <button type="submit" class="btn-mind w-100">
+        <button type="submit" class="btn-mind w-100" id="btnSalvarHumor" 
+        disabled style="opacity:0.5;cursor:not-allowed;">
             <i class="bi bi-check-circle me-1"></i> Salvar registro
         </button>
     </form>
 </div>
+
+    <!-- Gráfico de evolução -->
+    <?php if (isset($dadosGrafico['valores']) && count($dadosGrafico['valores']) >= 2): ?>
+    <div class="mind-card mt-4">
+        <p class="section-label mb-3">
+            <i class="bi bi-graph-up me-1"></i> Evolução do seu humor
+        </p>
+        <div style="height:260px;">
+            <canvas id="graficoHumor"></canvas>
+        </div>
+    </div>
+    <?php else: ?>
+    <div class="mind-card mt-4 text-center" style="padding:32px;">
+        <i class="bi bi-bar-chart" style="font-size:2rem;color:var(--mind-light);"></i>
+        <p style="color:var(--mind-muted);font-size:0.85rem;margin-top:8px;margin-bottom:0;">
+            Registre seu humor por pelo menos 2 dias para ver seu gráfico de evolução.
+        </p>
+    </div>
+    <?php endif; ?>                
 
 <!-- Histórico recente -->
 <?php if (!empty($historico)): ?>
@@ -106,10 +126,77 @@
 
 <script>
 function selecionarHumor(btn) {
-    document.querySelectorAll('.humor-btn').forEach(b => b.classList.remove('ativo'));
+    document.querySelectorAll('.humor-btn').forEach(b => b.
+    classList.remove('ativo'));
     btn.classList.add('ativo');
     document.getElementById('nivelInput').value = btn.dataset.valor;
+    
+    const btnSalvar = document.getElementById('btnSalvarHumor');
+    btnSalvar.disabled = false;
+    btnSalvar.style.opacity = '1';
+    btnSalvar.style.cursor = 'pointer';
 }
 </script>
+
+<?php if (count($dadosGrafico['valores']) >= 2): ?>
+<?= $this->section('scripts') ?>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+const ctxHumor = document.getElementById('graficoHumor');
+
+new Chart(ctxHumor, {
+    type: 'line',
+    data: {
+        labels: <?= json_encode($dadosGrafico['labels']) ?>,
+        datasets: [{
+            label: 'Humor',
+            data: <?= json_encode($dadosGrafico['valores']) ?>,
+            borderColor: '#009cb9',
+            backgroundColor: 'rgba(0, 156, 185, 0.08)',
+            borderWidth: 2.5,
+            tension: 0.35,
+            fill: true,
+            pointBackgroundColor: '#009cb9',
+            pointRadius: 4,
+            pointHoverRadius: 6,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        const labels = ['', 'Péssimo 😢', 'Ruim 🙁', 'Neutro 😐', 'Bom 🙂', 'Excelente 😀'];
+                        return labels[context.parsed.y] || '';
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                min: 0.5,
+                max: 5.5,
+                ticks: {
+                    stepSize: 1,
+                    callback: function(value) {
+                        const emojis = {1:'😢', 2:'🙁', 3:'😐', 4:'🙂', 5:'😀'};
+                        return emojis[value] || '';
+                    },
+                    font: { size: 14 }
+                },
+                grid: { color: '#e6f2f4' }
+            },
+            x: {
+                grid: { display: false }
+            }
+        }
+    }
+});
+</script>
+<?= $this->endSection() ?>
+<?php endif; ?>
 
 <?= $this->endSection() ?>

@@ -12,8 +12,12 @@ class HumorController extends BaseController
         $humorModel = new HumorModel();
 
         $historico = $humorModel->ultimosRegistros($usuarioId, 7);
+        $dadosGrafico = $humorModel->dadosParaGrafico($usuarioId, 14);
 
-        return view('humor/form', ['historico' => $historico]);
+        return view('humor/form', [
+            'historico' => $historico,
+            'dadosGrafico' => $dadosGrafico,
+        ]);
     }
 
     public function salvar()

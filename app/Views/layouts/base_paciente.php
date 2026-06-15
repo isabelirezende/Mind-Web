@@ -31,13 +31,31 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .mind-header .logo {
-            font-size: 1.4rem;
-            font-weight: 700;
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: 1px;
             color: var(--mind-primary);
             text-decoration: none;
+        }
+
+        .nav-link-mind {
+            color: var(--mind-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 6px 4px;
+            border-bottom: 2px solid transparent;
+            transition: all 0.15s;
+        }
+
+        .nav-link-mind:hover,
+        .nav-link-mind.active {
+            color: var(--mind-primary);
+            border-bottom-color: var(--mind-primary);
         }
 
         .mind-header .user-info {
@@ -176,12 +194,46 @@
             font-weight: 600;
             margin-bottom: 6px;
         }
+
+        /*Bottom nav fixo para mobile: */
+        @media (max-width: 767px) {
+            body { padding-bottom: 64px; }
+            .mobile-tabbar {
+                position: fixed; bottom: 0; left: 0; right: 0;
+                background: #fff; border-top: 1px solid var(--mind-border);
+                display: flex; justify-content: space-around;
+                padding: 8px 0; z-index: 200;
+            }
+            .mobile-tabbar a {
+                color: var(--mind-muted); text-decoration: none;
+                font-size: 0.68rem; text-align: center;
+                display: flex; flex-direction: column; align-items: center; gap: 2px;
+            }
+            .mobile-tabbar a i { font-size: 1.2rem; }
+            .mobile-tabbar a.active { color: var(--mind-primary); }
+        }
     </style>
 </head>
 <body>
 
 <header class="mind-header">
     <a href="/painel" class="logo">MIND</a>
+
+    <nav class="d-none d-md-flex gap-3">
+        <a href="/painel" class="nav-link-mind <?= current_url(true)->getPath() === 'painel' ? 'active' : '' ?>">
+            <i class="bi bi-house"></i> Painel
+        </a>
+        <a href="/humor" class="nav-link-mind <?= current_url(true)->getPath() === 'humor' ? 'active' : '' ?>">
+            <i class="bi bi-emoji-smile"></i> Humor
+        </a>
+        <a href="/alimentacao" class="nav-link-mind <?= current_url(true)->getPath() === 'alimentacao' ? 'active' : '' ?>">
+            <i class="bi bi-egg-fried"></i> Alimentação
+        </a>
+        <a href="/diario" class="nav-link-mind <?= current_url(true)->getPath() === 'diario' ? 'active' : '' ?>">
+            <i class="bi bi-journal-text"></i> Diário
+        </a>
+    </nav>
+
     <div class="user-info">
         <span>Olá, <strong><?= esc(session()->get('usuario_nome')) ?></strong></span>
         <a href="/logout"><i class="bi bi-box-arrow-right"></i> Sair</a>
@@ -208,6 +260,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<?= $this->renderSection('scripts') ?>
 <script>
     setTimeout(() => {
         document.querySelectorAll('.alert').forEach(a => {
@@ -215,5 +268,24 @@
         });
     }, 4000);
 </script>
+
+<nav class="mobile-tabbar d-md-none">
+    <a href="/painel" class="<?= current_url(true)->getPath() === 'painel' ? 'active' : '' ?>">
+        <i class="bi bi-house"></i> Painel
+    </a>
+    <a href="/humor" class="<?= current_url(true)->getPath() === 'humor' ? 'active' : '' ?>">
+        <i class="bi bi-emoji-smile"></i> Humor
+    </a>
+    <a href="/alimentacao" class="<?= current_url(true)->getPath() === 'alimentacao' ? 'active' : '' ?>">
+        <i class="bi bi-egg-fried"></i> Alimentação
+    </a>
+    <a href="/diario" class="<?= current_url(true)->getPath() === 'diario' ? 'active' : '' ?>">
+        <i class="bi bi-journal-text"></i> Diário
+    </a>
+    <a href="/panico" class="<?= current_url(true)->getPath() === 'panico' ? 'active' : '' ?>" style="color:#e53e3e;">
+        <i class="bi bi-exclamation-triangle"></i> Ajuda
+    </a>
+</nav>
+
 </body>
 </html>

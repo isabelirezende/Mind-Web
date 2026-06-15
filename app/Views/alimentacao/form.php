@@ -40,4 +40,19 @@
     </form>
 </div>
 
+
+<script>
+document.querySelectorAll('.mind-textarea').forEach(textarea => {
+    function verificar() {
+        if (textarea.value.trim().length > 0) {
+            textarea.style.borderColor = '#9ae6b4';
+        } else {
+            textarea.style.borderColor = '';
+        }
+    }
+    textarea.addEventListener('input', verificar);
+    verificar(); // checa no load (para valores pré-preenchidos)
+});
+</script>
+
 <?= $this->endSection() ?>

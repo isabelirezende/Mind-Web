@@ -19,13 +19,25 @@ $emojiHumor = [
 ?>
 
 <!-- Saudação -->
-<div class="mb-4">
-    <h1 style="font-size:1.5rem;font-weight:700;margin:0;">
-        <?= $saudacao ?>, <?= esc($nome) ?>! 👋
-    </h1>
-    <p style="color:var(--mind-muted);font-size:0.85rem;margin-top:4px;">
-        Como está se sentindo hoje? Registre seu estado.
-    </p>
+<div class="mb-4 d-flex justify-content-between align-items-start flex-wrap gap-2">
+    <div>
+        <h1 style="font-size:1.5rem;font-weight:700;margin:0;">
+            <?= $saudacao ?>, <?= esc($nome) ?>! 👋
+        </h1>
+        <p style="color:var(--mind-muted);font-size:0.85rem;margin-top:4px;">
+            Como está se sentindo hoje? Registre seu estado.
+        </p>
+    </div>
+
+    <?php if ($streak >= 2): ?>
+        <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:20px;
+                    padding:8px 16px;display:flex;align-items:center;gap:6px;white-space:nowrap;">
+            <span style="font-size:1.1rem;">🔥</span>
+            <span style="font-size:0.85rem;font-weight:600;color:#c2410c;">
+                <?= $streak ?> dias seguidos
+            </span>
+        </div>
+    <?php endif; ?>
 </div>
 
 <!-- Último humor (se existir) -->
@@ -48,6 +60,23 @@ $emojiHumor = [
         </div>
         <a href="/humor" style="margin-left:auto;font-size:0.8rem;color:var(--mind-primary);text-decoration:none;">
             Atualizar →
+        </a>
+    </div>
+<?php else: ?>
+    <!-- EMPTY STATE: nunca registrou humor -->
+    <div style="background:#fff;border:1.5px dashed var(--mind-border);border-radius:12px;
+                padding:18px 16px;margin-bottom:24px;display:flex;align-items:center;gap:14px;">
+        <span style="font-size:1.8rem;">👋</span>
+        <div style="flex:1;">
+            <div style="font-weight:600;font-size:0.92rem;margin-bottom:2px;">
+                Você ainda não registrou seu humor hoje
+            </div>
+            <div style="font-size:0.8rem;color:var(--mind-muted);">
+                Leva menos de 30 segundos — e ajuda muito no seu acompanhamento.
+            </div>
+        </div>
+        <a href="/humor" class="btn-mind" style="text-decoration:none;white-space:nowrap;padding:10px 18px;font-size:0.85rem;">
+            Registrar agora
         </a>
     </div>
 <?php endif; ?>

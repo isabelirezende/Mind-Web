@@ -14,9 +14,12 @@ class PainelController extends BaseController
         $ultimoHumor = $humorModel->where('usuario_id', $usuarioId)
                                   ->orderBy('criado_em', 'DESC')
                                   ->first();
-
+        
+        $streak = $humorModel->calcularStreak($usuarioId);
+         
         return view('painel/index', [
             'ultimoHumor' => $ultimoHumor,
+            'streak'      => $streak,
         ]);
     }
 }

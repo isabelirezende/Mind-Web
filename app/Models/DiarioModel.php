@@ -19,6 +19,17 @@ class DiarioModel extends Model
     ];
 
     protected $validationMessages = [
-        'conteudo' => ['required' => 'Escreva algo antes de salvar.'],
+        'conteudo' => [
+            'required' => 'Escreva algo antes de salvar.',
+            'min_length' => 'O texto precisa ter pelo menos 3 caracteres.',
+        ],
     ];
+
+    public function historicoCompleto(int $usuarioId, int $limite = 10): array
+    {
+        return $this->where('usuario_id', $usuarioId)
+                    ->orderBy('criado_em', 'DESC')
+                    ->limit($limite)
+                    ->findAll();
+    }
 }

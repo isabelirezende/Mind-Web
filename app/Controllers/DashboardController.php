@@ -34,12 +34,51 @@ class DashboardController extends BaseController
             ->get()
             ->getResultArray();
 
+        $pacientes = $usuarioModel->listarPacientes();
+
         return view('dashboard/index', [
             'totalPacientes'   => $totalPacientes,
             'totalAlertas'     => $totalAlertas,
             'alertasNaoVistos' => $alertasNaoVistos,
             'alertasRecentes'  => $alertasRecentes,
             'humoresRecentes'  => $humoresRecentes,
+            'dadosGrafico'     => $dadosGrafico,
+            'pacientes'        => $pacientes,
         ]);
+    }
+
+    private function dadosGraficoGeral(): array
+    {
+        $humorModel = new \App\Models\HumorModel();
+
+        $escala = [
+            'pessimo'   => 1,
+            'ruim'      => 2,
+            'neutro'    => 3,
+            'bom'       => 4,
+            'excelente' => 5,
+        ];
+
+        // Busca registros dos últimos 14 dias, agrupados por dia
+        $registros = $humorModel->select('nivel, DATE(criado_em) as dia')
+                                ->where('criado_em >=', date('Y-m-d', strtotime('-14 days')))
+                                ->orderBy('criado_em', 'ASC')
+                                ->findAll();
+
+        $porDia = [];
+        foreach ($registros as $r) {
+            $valor = $escala[$r['nivel']] ?? 3;
+            $porDia[$r['dia']][] = $valor;
+        }
+
+        $labels  = [];
+        $valores = [];
+
+        foreach ($porDia as $dia => $valoresDia) {
+            $labels[]  = date('d/m', strtotime($dia));
+            $valores[] = round(array_sum($valoresDia) / count($valoresDia), 1);
+        }
+
+        return ['labels' => $labels, 'valores' => $valores];
     }
 }

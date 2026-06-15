@@ -41,4 +41,11 @@ class UsuarioModel extends Model
 
         return $usuario;
     }
+
+    public function listarPacientes(): array
+    {
+        return $this->where('role', 'paciente')
+                    ->orderBy('nome', 'ASC')
+                    ->findAll();
+    }
 }

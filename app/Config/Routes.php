@@ -14,6 +14,8 @@ $routes->get('/logout', 'AuthController::logout');
 // Dashboard do profissional (protegido)
 $routes->get('/dashboard', 'DashboardController::index', ['filter' => 'auth:profissional']);
 
+$routes->get('/dashboard/paciente/(:num)', 'PacienteController::detalhes/$1', ['filter' => 'auth:profissional']);
+
 // Painel do paciente (protegido)
 $routes->get('/painel', 'PainelController::index', ['filter' => 'auth:paciente']);
 
