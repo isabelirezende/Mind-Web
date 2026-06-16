@@ -82,13 +82,27 @@ class DashboardController extends BaseController
             $porDia[$r['dia']][] = $valor;
         }
 
-        $labels  = [];
+        $labels = [];
         $valores = [];
-        foreach ($porDia as $dia => $valoresDia) {
-            $labels[]  = date('d/m', strtotime($dia));
-            $valores[] = round(array_sum($valoresDia) / count($valoresDia), 1);
-        }
 
+        for ($i = 13; $i >= 0; $i--) {
+
+            $dia = date('Y-m-d', strtotime("-{$i} days"));
+
+            $labels[] = date('d/m', strtotime($dia));
+
+            if (isset($porDia[$dia])) {
+
+                $valores[] = round(
+                    array_sum($porDia[$dia]) / count($porDia[$dia]),
+                    1
+                );
+
+            } else {
+
+                $valores[] = null;
+            }
+        }
         return ['labels' => $labels, 'valores' => $valores];
     }
 }
