@@ -10,21 +10,19 @@ class DashboardController extends BaseController
 {
     public function index()
     {
-        $usuarioModel    = new UsuarioModel();
-        $alertaModel     = new AlertaModel();
-        $humorModel      = new HumorModel();
+        $usuarioModel = new UsuarioModel();
+        $alertaModel  = new AlertaModel();
+        $humorModel   = new HumorModel();
 
         // Contagem de pacientes
         $totalPacientes = $usuarioModel->where('role', 'paciente')->countAllResults();
 
-        // Alertas não visualizados
+        // Alertas
         $alertasNaoVistos = $alertaModel->alertasNaoVistos();
         $totalAlertas     = count($alertasNaoVistos);
+        $alertasRecentes  = $alertaModel->todosAlertas(10);
 
-        // Todos os alertas recentes (para a tabela)
-        $alertasRecentes = $alertaModel->todosAlertas(10);
-
-        // Registros de humor recentes (todos os pacientes)
+        // Registros de humor recentes
         $humoresRecentes = $humorModel
             ->db->table('humores h')
             ->select('h.*, u.nome as paciente_nome')
@@ -33,8 +31,21 @@ class DashboardController extends BaseController
             ->limit(5)
             ->get()
             ->getResultArray();
-            
-        $dadosGrafico = $this->dadosGraficoGeral();
+
+        // Gráfico geral
+        $dadosGrafico = $this->dadosGraficoGeral($humorModel);
+
+        // Calcular humor médio
+        $humorMedio = '-';
+
+        if (!empty($dadosGrafico['valores'])) {
+            $humorMedio = round(
+                array_sum($dadosGrafico['valores']) / count($dadosGrafico['valores']),
+                1
+            );
+        }
+
+        // Lista de pacientes
         $pacientes = $usuarioModel->listarPacientes();
 
         return view('dashboard/index', [
@@ -45,13 +56,12 @@ class DashboardController extends BaseController
             'humoresRecentes'  => $humoresRecentes,
             'dadosGrafico'     => $dadosGrafico,
             'pacientes'        => $pacientes,
+            'humorMedio'       => $humorMedio,
         ]);
     }
 
-    private function dadosGraficoGeral(): array
+    private function dadosGraficoGeral(HumorModel $humorModel): array
     {
-        $humorModel = new \App\Models\HumorModel();
-
         $escala = [
             'pessimo'   => 1,
             'ruim'      => 2,
@@ -60,11 +70,11 @@ class DashboardController extends BaseController
             'excelente' => 5,
         ];
 
-        // Busca registros dos últimos 14 dias, agrupados por dia
-        $registros = $humorModel->select('nivel, DATE(criado_em) as dia')
-                                ->where('criado_em >=', date('Y-m-d', strtotime('-14 days')))
-                                ->orderBy('criado_em', 'ASC')
-                                ->findAll();
+        $registros = $humorModel
+            ->select('nivel, DATE(criado_em) as dia')
+            ->where('criado_em >=', date('Y-m-d', strtotime('-14 days')))
+            ->orderBy('criado_em', 'ASC')
+            ->findAll();
 
         $porDia = [];
         foreach ($registros as $r) {
@@ -74,7 +84,6 @@ class DashboardController extends BaseController
 
         $labels  = [];
         $valores = [];
-
         foreach ($porDia as $dia => $valoresDia) {
             $labels[]  = date('d/m', strtotime($dia));
             $valores[] = round(array_sum($valoresDia) / count($valoresDia), 1);
